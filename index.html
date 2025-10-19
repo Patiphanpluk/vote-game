@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>เว็บเลือกตั้งจำลอง</title>
+<style>
+  body {font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#f4f4f8; display:flex; justify-content:center; padding:20px;}
+  .container {width:100%; max-width:600px; background:white; padding:20px; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.1);}
+  h1 {text-align:center;}
+  .candidate {margin:12px 0; padding:10px; border:1px solid #ccc; border-radius:8px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; transition:0.2s;}
+  .candidate.selected {border-color:#4caf50; background:#e8f5e9;}
+  button {margin-top:20px; width:100%; padding:12px; background:#4caf50; color:white; border:none; border-radius:8px; font-size:16px; cursor:pointer;}
+  #result {margin-top:20px; display:none;}
+  .bar {height:24px; border-radius:12px; background:#4caf50; margin-top:4px; text-align:right; color:white; padding-right:6px; line-height:24px;}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>เลือกตั้งจำลอง</h1>
+  <p>เลือกผู้สมัครที่คุณต้องการแล้วกดส่ง</p>
+  <div id="voteArea"></div>
+  <button id="submitBtn">ส่งคะแนนโหวต</button>
+  <div id="result"></div>
+</div>
+
+<script>
+const candidates = [
+  {name: 'ผู้สมัคร ก', votes: 0},
+  {name: 'ผู้สมัคร ข', votes: 0},
+  {name: 'ผู้สมัคร ค', votes: 0}
+];
+
+let selectedIndex = null;
+const voteArea = document.getElementById('voteArea');
+const submitBtn = document.getElementById('submitBtn');
+const resultDiv = document.getElementById('result');
+
+function renderCandidates() {
+  voteArea.innerHTML = '';
+  candidates.forEach((c, i) => {
+    const div = document.createElement('div');
+    div.className = 'candidate' + (selectedIndex===i?' selected':'');
+    div.textContent = c.name;
+    div.addEventListener('click', ()=>{ selectedIndex=i; renderCandidates(); });
+    voteArea.appendChild(div);
+  });
+}
+
+function showResults() {
+  voteArea.style.display='none';
+  submitBtn.style.display='none';
+  resultDiv.style.display='block';
+  resultDiv.innerHTML='<h2>ผลการโหวต</h2>';
+  const total = candidates.reduce((a,b)=>a+b.votes,0);
+  candidates.forEach(c=>{
+    const pct = total ? Math.round(c.votes/total*100) : 0;
+    const barContainer = document.createElement('div');
+    barContainer.innerHTML=`${c.name} (${c.votes} คะแนน)`;
+    const barFill = document.createElement('div');
+    barFill.className='bar';
+    barFill.style.width = pct+'%';
+    barFill.textContent = pct+'%';
+    barContainer.appendChild(barFill);
+    resultDiv.appendChild(barContainer);
+  });
+}
+
+submitBtn.addEventListener('click', ()=>{
+  if(selectedIndex===null){
+    alert('กรุณาเลือกผู้สมัครก่อน');
+    return;
+  }
+  // เพิ่มคะแนนโหวต
+  candidates[selectedIndex].votes += 1;
+  showResults();
+});
+
+renderCandidates();
+</script>
+</body>
+</html>
