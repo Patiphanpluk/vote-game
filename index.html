@@ -25,6 +25,7 @@
 </div>
 
 <script>
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwyTC6y_WS40dvkMX2i-KVATACWQyskdmRTB2GjF2cospzMznXCNo5g2xmI-_gaxPOwKg/exec"; // ใส่ URL Web App ของคุณ
 const candidates = [
   {name: 'ผู้สมัคร ก', votes: 0},
   {name: 'ผู้สมัคร ข', votes: 0},
@@ -45,6 +46,20 @@ function renderCandidates() {
     div.addEventListener('click', ()=>{ selectedIndex=i; renderCandidates(); });
     voteArea.appendChild(div);
   });
+}
+
+function sendVote(candidateName){
+  fetch(WEB_APP_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      user: "Anonymous", // หรือเก็บจาก input ถ้ามี
+      candidate: candidateName
+    }),
+    headers: { 'Content-Type': 'application/json' }
+  })
+  .then(res => res.json())
+  .then(data => console.log("Vote sent:", data))
+  .catch(err => console.error(err));
 }
 
 function showResults() {
@@ -71,8 +86,9 @@ submitBtn.addEventListener('click', ()=>{
     alert('กรุณาเลือกผู้สมัครก่อน');
     return;
   }
-  // เพิ่มคะแนนโหวต
-  candidates[selectedIndex].votes += 1;
+  const chosen = candidates[selectedIndex].name;
+  sendVote(chosen);       // ส่งไป Google Sheets
+  candidates[selectedIndex].votes += 1; // อัปเดตผลในเว็บ
   showResults();
 });
 
